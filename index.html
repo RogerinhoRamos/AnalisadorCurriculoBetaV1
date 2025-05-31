@@ -1136,6 +1136,7 @@
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
+            carregarTemplatesPersonalizados(); // Carregar templates salvos primeiro
             carregarTemplates();
             configurarEventos();
             atualizarStatusEtapas(); // Atualizar status inicial
@@ -1476,7 +1477,20 @@
             const grid = document.getElementById('templatesGrid');
             grid.innerHTML = '';
             
+            // Separar templates padrão dos personalizados
+            const templatesEstaticos = {};
+            const templatesPersonalizados = {};
+            
             Object.entries(templates).forEach(([key, template]) => {
+                if (key.startsWith('custom_')) {
+                    templatesPersonalizados[key] = template;
+                } else {
+                    templatesEstaticos[key] = template;
+                }
+            });
+            
+            // Renderizar templates padrão primeiro
+            Object.entries(templatesEstaticos).forEach(([key, template]) => {
                 const card = document.createElement('div');
                 card.className = 'template-card';
                 card.onclick = () => selecionarTemplate(key);
@@ -1497,6 +1511,68 @@
                 
                 grid.appendChild(card);
             });
+            
+            // Se houver templates personalizados, adicionar seção separada
+            if (Object.keys(templatesPersonalizados).length > 0) {
+                // Divisor
+                const divisor = document.createElement('div');
+                divisor.style.cssText = `
+                    grid-column: 1 / -1;
+                    margin: 20px 0;
+                    text-align: center;
+                    color: #7f8c8d;
+                    font-weight: bold;
+                    border-top: 2px solid #ecf0f1;
+                    padding-top: 20px;
+                `;
+                divisor.innerHTML = '📋 MEUS TEMPLATES PERSONALIZADOS';
+                grid.appendChild(divisor);
+                
+                // Renderizar templates personalizados
+                Object.entries(templatesPersonalizados).forEach(([key, template]) => {
+                    const card = document.createElement('div');
+                    card.className = 'template-card';
+                    card.style.borderLeft = '5px solid #2ecc71'; // Verde para personalizados
+                    card.onclick = () => selecionarTemplate(key);
+                    
+                    const criteriosTexto = Object.keys(template.criterios)
+                        .filter(c => template.criterios[c].peso > 0)
+                        .slice(0, 4)
+                        .map(c => template.criterios[c].nome)
+                        .join(', ');
+                    
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="flex: 1;">
+                                <div class="template-title">
+                                    ${template.nome} 
+                                    <span style="font-size: 0.8em; color: #2ecc71;">👤 Personalizado</span>
+                                </div>
+                                <div class="template-description">${template.descricao}</div>
+                                <div class="template-criterios">
+                                    <strong>Principais critérios:</strong> ${criteriosTexto}...
+                                </div>
+                                <div style="font-size: 0.8em; color: #95a5a6; margin-top: 8px;">
+                                    📅 Criado em: ${template.dataCreated}
+                                </div>
+                            </div>
+                            <button onclick="event.stopPropagation(); excluirTemplate('${key}')" 
+                                    style="
+                                        background: #e74c3c; 
+                                        color: white; 
+                                        border: none; 
+                                        border-radius: 50%; 
+                                        width: 25px; 
+                                        height: 25px; 
+                                        cursor: pointer;
+                                        font-size: 12px;
+                                    ">🗑️</button>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(card);
+                });
+            }
         }
 
         function selecionarTemplate(templateKey) {
@@ -1634,7 +1710,116 @@
         }
 
         function salvarTemplate() {
-            alert('Template personalizado salvo com sucesso!');
+            if (!appState.templateSelecionado) {
+                alert('❌ Nenhum template selecionado para personalizar.');
+                return;
+            }
+            
+            // Pedir nome para o template personalizado
+            const nomeTemplate = prompt('📝 Digite um nome para seu template personalizado:', 
+                `${templates[appState.templateSelecionado].nome} - Personalizado`);
+            
+            if (!nomeTemplate || nomeTemplate.trim() === '') {
+                return; // Usuário cancelou
+            }
+            
+            try {
+                // Clonar o template atual com as modificações
+                const templatePersonalizado = {
+                    nome: nomeTemplate.trim(),
+                    descricao: `Template personalizado baseado em ${templates[appState.templateSelecionado].nome}`,
+                    criterios: JSON.parse(JSON.stringify(templates[appState.templateSelecionado].criterios)),
+                    dataCreated: new Date().toLocaleDateString('pt-BR'),
+                    baseTemplate: appState.templateSelecionado
+                };
+                
+                // Salvar no localStorage (simulando persistência)
+                let templatesPersonalizados = JSON.parse(localStorage.getItem('templatesPersonalizados') || '{}');
+                const chaveTemplate = `custom_${Date.now()}`;
+                templatesPersonalizados[chaveTemplate] = templatePersonalizado;
+                localStorage.setItem('templatesPersonalizados', JSON.stringify(templatesPersonalizados));
+                
+                // Adicionar ao templates global para uso imediato
+                templates[chaveTemplate] = templatePersonalizado;
+                
+                // Feedback visual
+                const alertDiv = document.createElement('div');
+                alertDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #2ecc71;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    z-index: 9999;
+                    font-weight: bold;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                `;
+                alertDiv.innerHTML = `
+                    ✅ Template "${nomeTemplate}" salvo com sucesso!<br>
+                    <small style="opacity: 0.8;">💾 Disponível neste navegador</small>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Remover após 3 segundos
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 3000);
+                
+                // Recarregar grid de templates para mostrar o novo
+                carregarTemplates();
+                
+                console.log('✅ Template personalizado salvo:', templatePersonalizado);
+                
+            } catch (error) {
+                console.error('Erro ao salvar template:', error);
+                alert('❌ Erro ao salvar template. Tente novamente.');
+            }
+        }
+        
+        function carregarTemplatesPersonalizados() {
+            try {
+                const templatesPersonalizados = JSON.parse(localStorage.getItem('templatesPersonalizados') || '{}');
+                
+                // Adicionar templates personalizados ao objeto global
+                Object.entries(templatesPersonalizados).forEach(([chave, template]) => {
+                    templates[chave] = template;
+                });
+                
+                console.log(`📋 ${Object.keys(templatesPersonalizados).length} templates personalizados carregados`);
+                
+            } catch (error) {
+                console.error('Erro ao carregar templates personalizados:', error);
+            }
+        }
+        
+        function excluirTemplate(templateKey) {
+            if (!templateKey.startsWith('custom_')) {
+                alert('❌ Não é possível excluir templates padrão do sistema.');
+                return;
+            }
+            
+            if (confirm('🗑️ Tem certeza que deseja excluir este template personalizado?')) {
+                try {
+                    // Remover do localStorage
+                    let templatesPersonalizados = JSON.parse(localStorage.getItem('templatesPersonalizados') || '{}');
+                    delete templatesPersonalizados[templateKey];
+                    localStorage.setItem('templatesPersonalizados', JSON.stringify(templatesPersonalizados));
+                    
+                    // Remover do objeto global
+                    delete templates[templateKey];
+                    
+                    // Recarregar grid
+                    carregarTemplates();
+                    
+                    alert('✅ Template excluído com sucesso!');
+                    
+                } catch (error) {
+                    console.error('Erro ao excluir template:', error);
+                    alert('❌ Erro ao excluir template.');
+                }
+            }
         }
 
         function resetTemplate() {
@@ -2826,6 +3011,10 @@
                 if (confirmacao) {
                     confirmacao.remove();
                 }
+                
+                // Recarregar templates (incluindo personalizados)
+                carregarTemplatesPersonalizados();
+                carregarTemplates();
                 
                 // Limpar conteúdo dos dashboards
                 document.getElementById('statsGrid').innerHTML = '';
