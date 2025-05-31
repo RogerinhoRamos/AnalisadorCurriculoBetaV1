@@ -2618,17 +2618,19 @@
                     const nomeAmigavel = nomesAmigaveis[cidade] || 'Outras cidades';
                     const percentual = ((count / candidatos.length) * 100).toFixed(1);
                     
-                    // Barra
-                    const larguraBarra = (count / candidatos.length) * 120;
+                    // Barra (ajustada para caber na página)
+                    const larguraBarra = Math.min((count / candidatos.length) * 100, 90); // Máximo 90 para não sair da página
                     doc.setFillColor(...azulPrimario);
-                    doc.rect(90, yPos - 3, larguraBarra, 8, 'F');
+                    doc.rect(80, yPos - 3, larguraBarra, 8, 'F');
                     
-                    // Texto
+                    // Nome da cidade à esquerda
                     doc.setTextColor(...cinzaTexto);
                     doc.setFontSize(10);
                     doc.setFont('helvetica', 'normal');
                     doc.text(`${nomeAmigavel}:`, 25, yPos + 2);
-                    doc.text(`${count} (${percentual}%)`, 220 - larguraBarra, yPos + 2);
+                    
+                    // Valores à direita (posição fixa para não sair da margem)
+                    doc.text(`${count} (${percentual}%)`, 175, yPos + 2);
                     
                     yPos += 15;
                 });
