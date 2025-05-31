@@ -1246,11 +1246,102 @@
             }
         }
 
+        function limparNome(nome) {
+            if (!nome) return "";
+            
+            // Primeiro, fazer limpeza básica
+            let nomeBasico = nome
+                .replace(/\s+/g, ' ') // Múltiplos espaços para um só
+                .replace(/[^\w\sÀ-ÿ]/g, ' ') // Remove caracteres especiais mas mantém acentos
+                .trim();
+            
+            // Verificar se o nome REALMENTE tem problemas antes de aplicar limpeza pesada
+            const palavras = nomeBasico.toLowerCase().split(' ').filter(p => p.length > 0);
+            
+            // Detectar problemas comuns
+            const temDuplicacaoConsecutiva = palavras.some((palavra, i) => 
+                i > 0 && palavra === palavras[i-1] && !['de', 'da', 'do', 'das', 'dos'].includes(palavra)
+            );
+            
+            const temDuplicacaoDistante = palavras.some((palavra, i) => 
+                palavras.indexOf(palavra) !== i && !['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o'].includes(palavra)
+            );
+            
+            const temNomeIncompleto = nomeBasico.endsWith(' da') || nomeBasico.endsWith(' de') || 
+                                    nomeBasico.endsWith(' do') || nomeBasico.endsWith(' dos') || 
+                                    nomeBasico.endsWith(' das');
+            
+            // SE NÃO TEM PROBLEMAS, retornar apenas com capitalização correta
+            if (!temDuplicacaoConsecutiva && !temDuplicacaoDistante && !temNomeIncompleto) {
+                // Apenas capitalizar corretamente e retornar
+                return nomeBasico.split(' ').map(palavra => {
+                    if (['de', 'da', 'do', 'das', 'dos', 'e'].includes(palavra.toLowerCase()) && palavra.length <= 3) {
+                        return palavra.toLowerCase();
+                    }
+                    return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+                }).join(' ');
+            }
+            
+            // SE TEM PROBLEMAS, aplicar limpeza pesada
+            console.log(`🔧 Aplicando limpeza pesada em: "${nome}" (problemas detectados)`);
+            
+            let palavrasLimpas = [];
+            
+            // Remover duplicações consecutivas
+            for (let i = 0; i < palavras.length; i++) {
+                const palavraAtual = palavras[i];
+                const palavraAnterior = palavrasLimpas[palavrasLimpas.length - 1];
+                
+                if (palavraAtual !== palavraAnterior) {
+                    palavrasLimpas.push(palavraAtual);
+                }
+            }
+            
+            // Remover duplicações não consecutivas (exceto preposições)
+            let palavrasFinais = [];
+            for (let i = 0; i < palavrasLimpas.length; i++) {
+                const palavra = palavrasLimpas[i];
+                const preposicoes = ['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o'];
+                const jaExiste = palavrasFinais.includes(palavra);
+                const ehPreposicao = preposicoes.includes(palavra);
+                
+                if (!jaExiste || ehPreposicao) {
+                    palavrasFinais.push(palavra);
+                }
+            }
+            
+            // Remover preposições órfãs no final
+            while (palavrasFinais.length > 0 && 
+                   ['de', 'da', 'do', 'das', 'dos'].includes(palavrasFinais[palavrasFinais.length - 1])) {
+                palavrasFinais.pop();
+            }
+            
+            // Capitalizar
+            palavrasFinais = palavrasFinais.map(palavra => {
+                if (['de', 'da', 'do', 'das', 'dos', 'e'].includes(palavra) && palavra.length <= 3) {
+                    return palavra;
+                } else {
+                    return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+                }
+            });
+            
+            const nomeClean = palavrasFinais.join(' ');
+            
+            // Validação final
+            if (nomeClean.length < 3 || palavrasFinais.length < 2) {
+                console.log(`❌ Nome inválido após limpeza: "${nomeClean}"`);
+                return "";
+            }
+            
+            console.log(`✅ Nome corrigido: "${nome}" → "${nomeClean}"`);
+            return nomeClean;
+        }
+
         function extrairCandidatos(texto) {
             const candidatos = [];
             
-            // Regex melhorada para capturar nomes completos sem duplicação
-            const regexPrincipal = /(\d+)\.\s*([A-ZÀ-Ÿa-zà-ÿ](?:[A-ZÀ-Ÿa-zà-ÿ\s\.]+?))\s+Cand-(\d+)/gi;
+            // Regex melhorada para capturar nomes mais precisamente
+            const regexPrincipal = /(\d+)\.\s*([A-ZÀ-Ÿ][A-ZÀ-Ÿa-zà-ÿ\s]{3,80}?)\s+(Cand-\d+)/gi;
             
             const nomesEncontrados = new Set();
             const idsEncontrados = new Set();
@@ -1259,31 +1350,86 @@
             // Reset regex
             regexPrincipal.lastIndex = 0;
             
+            console.log('Iniciando extração de candidatos...');
+            
             while ((match = regexPrincipal.exec(texto)) !== null) {
                 const numero = parseInt(match[1]);
-                let nome = match[2].trim();
-                const id = `Cand-${match[3]}`;
+                let nomeRaw = match[2].trim();
+                const id = match[3];
                 
                 // Evitar IDs duplicados
                 if (idsEncontrados.has(id)) {
                     continue;
                 }
                 
-                // Limpar e normalizar nome
-                nome = nome
-                    .replace(/\s+/g, ' ') // Múltiplos espaços para um só
-                    .replace(/\b(\w+)\s+\1\b/gi, '$1') // Remove palavras duplicadas consecutivas
-                    .replace(/[^\w\sÀ-ÿ]/g, '') // Remove caracteres especiais, mantém acentos
-                    .trim();
+                // Limpar o nome usando a função especializada
+                const nomeClean = limparNome(nomeRaw);
                 
-                // Verificar se nome não está vazio e não é muito curto
-                if (nome.length > 3 && !nomesEncontrados.has(nome.toLowerCase())) {
-                    nomesEncontrados.add(nome.toLowerCase());
+                // Verificar se o nome é válido
+                if (nomeClean.length < 3) {
+                    console.log(`Nome inválido ignorado: "${nomeRaw}" -> "${nomeClean}"`);
+                    continue;
+                }
+                
+                // Verificar duplicações de nomes (case insensitive)
+                const nomeKey = nomeClean.toLowerCase();
+                if (nomesEncontrados.has(nomeKey)) {
+                    console.log(`Nome duplicado ignorado: "${nomeClean}"`);
+                    continue;
+                }
+                
+                nomesEncontrados.add(nomeKey);
+                idsEncontrados.add(id);
+                
+                candidatos.push({
+                    numero: numero,
+                    nome: nomeClean,
+                    id: id,
+                    pontuacao: 0,
+                    detalhes: {},
+                    endereco: "",
+                    cidade_normalizada: "",
+                    distancia: 0,
+                    competencias: []
+                });
+                
+                console.log(`✅ Candidato ${numero}: "${nomeClean}" (${id})`);
+            }
+            
+            // Se ainda não encontrou todos, tentar regex mais ampla
+            if (candidatos.length < 50) {
+                console.log('Executando busca complementar...');
+                
+                const regexComplementar = /(\d+)\.\s*([A-ZÀ-Ÿ][^0-9\n]{4,60}?)\s+(Cand-\d+)/gi;
+                regexComplementar.lastIndex = 0;
+                
+                while ((match = regexComplementar.exec(texto)) !== null) {
+                    const numero = parseInt(match[1]);
+                    let nomeRaw = match[2].trim();
+                    const id = match[3];
+                    
+                    // Pular se já foi encontrado
+                    if (idsEncontrados.has(id)) {
+                        continue;
+                    }
+                    
+                    const nomeClean = limparNome(nomeRaw);
+                    
+                    if (nomeClean.length < 3) {
+                        continue;
+                    }
+                    
+                    const nomeKey = nomeClean.toLowerCase();
+                    if (nomesEncontrados.has(nomeKey)) {
+                        continue;
+                    }
+                    
+                    nomesEncontrados.add(nomeKey);
                     idsEncontrados.add(id);
                     
                     candidatos.push({
                         numero: numero,
-                        nome: nome,
+                        nome: nomeClean,
                         id: id,
                         pontuacao: 0,
                         detalhes: {},
@@ -1292,61 +1438,16 @@
                         distancia: 0,
                         competencias: []
                     });
-                }
-            }
-            
-            // Se ainda não encontrou todos, tentar regex mais ampla
-            if (candidatos.length < 60) {
-                console.log('Executando busca complementar...');
-                
-                // Regex mais flexível para capturar nomes que podem ter escapado
-                const regexComplementar = /(\d+)\.\s*([A-ZÀ-Ÿ][^0-9]+?)\s+(Cand-\d+)/gi;
-                regexComplementar.lastIndex = 0;
-                
-                while ((match = regexComplementar.exec(texto)) !== null) {
-                    const numero = parseInt(match[1]);
-                    let nome = match[2].trim();
-                    const id = match[3];
                     
-                    // Pular se já foi encontrado
-                    if (idsEncontrados.has(id)) {
-                        continue;
-                    }
-                    
-                    // Limpar nome
-                    nome = nome
-                        .replace(/\s+/g, ' ')
-                        .replace(/\b(\w+)\s+\1\b/gi, '$1') // Remove duplicações
-                        .replace(/[^\w\sÀ-ÿ]/g, '')
-                        .trim();
-                    
-                    if (nome.length > 3 && !idsEncontrados.has(id)) {
-                        idsEncontrados.add(id);
-                        
-                        candidatos.push({
-                            numero: numero,
-                            nome: nome,
-                            id: id,
-                            pontuacao: 0,
-                            detalhes: {},
-                            endereco: "",
-                            cidade_normalizada: "",
-                            distancia: 0,
-                            competencias: []
-                        });
-                    }
+                    console.log(`✅ Candidato complementar ${numero}: "${nomeClean}" (${id})`);
                 }
             }
             
             // Ordenar por número
             candidatos.sort((a, b) => a.numero - b.numero);
             
-            console.log(`Candidatos extraídos: ${candidatos.length}`);
-            console.log('Primeiros 10 candidatos:', candidatos.slice(0, 10).map(c => `${c.numero}. ${c.nome} ${c.id}`));
-            
-            if (candidatos.length < 60) {
-                console.log('⚠️ Menos candidatos encontrados que o esperado. Verifique o formato do PDF.');
-            }
+            console.log(`Extração concluída: ${candidatos.length} candidatos válidos`);
+            console.log('Primeiros 5 candidatos:', candidatos.slice(0, 5).map(c => `${c.numero}. ${c.nome} ${c.id}`));
             
             return candidatos;
         }
