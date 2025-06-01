@@ -457,18 +457,6 @@
             color: #7f8c8d;
         }
         
-        .distancia-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .distancia-muito-perto { background: #d4edda; color: #155724; }
-        .distancia-perto { background: #fff3cd; color: #856404; }
-        .distancia-medio { background: #f8d7da; color: #721c24; }
-        .distancia-longe { background: #f5c6cb; color: #721c24; }
-        
         /* Gráficos */
         .charts-section {
             display: grid;
@@ -518,64 +506,61 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Footer Styles */
-        .footer {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        /* Seleção de Candidatos */
+        .candidato-selecionavel {
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
         
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
+        .candidato-selecionavel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .footer-info {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .candidato-incluido {
+            background: #f8fff8;
+            border-color: #2ecc71;
         }
         
-        .footer-main {
-            font-size: 1.1em;
-            color: #2c3e50;
-            font-weight: bold;
+        .candidato-excluido {
+            background: #fff5f5;
+            border-color: #e74c3c;
         }
         
-        .footer-sub {
-            font-size: 0.9em;
-            color: #7f8c8d;
+        /* Alertas */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
         }
         
-        .footer-version {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9em;
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
         }
         
-        .footer-tech {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 15px;
-            font-size: 0.8em;
-            color: #95a5a6;
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
         }
         
-        .footer-tech span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .alert.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        
+        .hidden {
+            display: none !important;
         }
         
         /* Responsive */
@@ -610,51 +595,6 @@
                 align-self: flex-end;
                 flex-direction: row;
             }
-            
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .footer-tech {
-                flex-wrap: wrap;
-            }
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        /* Alertas */
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid;
-        }
-        
-        .alert.success {
-            background: #d4edda;
-            color: #155724;
-            border-left-color: #28a745;
-        }
-        
-        .alert.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left-color: #dc3545;
-        }
-        
-        .alert.warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left-color: #ffc107;
-        }
-        
-        .alert.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left-color: #17a2b8;
         }
     </style>
 </head>
@@ -668,6 +608,7 @@
         <div class="tabs">
             <div class="tab active" onclick="showTab('upload')">📄 Upload PDF</div>
             <div class="tab" onclick="showTab('config')">⚙️ Configuração</div>
+            <div class="tab" onclick="showTab('selecao')">👥 Seleção</div>
             <div class="tab" onclick="showTab('templates')">📋 Templates</div>
             <div class="tab" onclick="showTab('analise')">🔍 Análise</div>
             <div class="tab" onclick="showTab('dashboard')">📊 Dashboard</div>
@@ -686,6 +627,13 @@
             </div>
             
             <input type="file" id="pdfFile" class="file-input" accept=".pdf">
+            
+            <!-- Botão de teste/debug -->
+            <div style="text-align: center; margin: 15px 0;">
+                <button class="btn secondary" onclick="testarUpload()" style="font-size: 0.9em;">
+                    🔧 Testar Sistema de Upload
+                </button>
+            </div>
             
             <div id="fileInfo" class="hidden">
                 <div class="alert info">
@@ -769,11 +717,79 @@
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-                <button class="btn success" onclick="showTab('templates')">➡️ Próximo: Selecionar Template</button>
+                <button class="btn success" onclick="showTab('selecao')">➡️ Próximo: Selecionar Candidatos</button>
             </div>
         </div>
 
-        <!-- ABA 3: Templates -->
+        <!-- ABA 3: Seleção de Candidatos -->
+        <div class="tab-content" id="selecao">
+            <h2>👥 Seleção de Candidatos</h2>
+            
+            <!-- Resumo -->
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #3498db;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Resumo</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <span style="font-size: 1.8em; color: #3498db; font-weight: bold;" id="totalCandidatos">0</span>
+                        <div style="color: #7f8c8d;">candidatos encontrados</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 1.8em; color: #2ecc71; font-weight: bold;" id="candidatosSelecionados">0</span>
+                        <div style="color: #7f8c8d;">selecionados para análise</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 1.8em; color: #e74c3c; font-weight: bold;" id="candidatosExcluidos">0</span>
+                        <div style="color: #7f8c8d;">excluídos</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ferramentas -->
+            <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">🔧 Ferramentas de Seleção</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn" onclick="selecionarTodos()">☑️ Selecionar Todos</button>
+                    <button class="btn secondary" onclick="desmarcarTodos()">☐ Desmarcar Todos</button>
+                    <button class="btn secondary" onclick="inverterSelecao()">🔄 Inverter Seleção</button>
+                </div>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                    <div>
+                        <label style="margin-right: 10px;">📍 Filtrar por distância:</label>
+                        <select id="filtroDistancia" onchange="aplicarFiltros()">
+                            <option value="todos">Todos os candidatos</option>
+                            <option value="15">≤ 15km (Muito perto)</option>
+                            <option value="25">≤ 25km (Perto)</option>
+                            <option value="50">≤ 50km (Raio amplo)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label style="margin-right: 10px;">🔍 Buscar candidato:</label>
+                        <input type="text" id="buscaCandidato" placeholder="Digite o nome..." 
+                               style="padding: 8px; border: 1px solid #ddd; border-radius: 5px; width: 200px;"
+                               oninput="aplicarFiltros()">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lista de Candidatos -->
+            <div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 Lista de Candidatos</h3>
+                
+                <div id="listaCandidatos" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Lista será preenchida dinamicamente -->
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn secondary" onclick="showTab('config')">⬅️ Voltar: Configuração</button>
+                <button class="btn success" style="margin-left: 10px;" onclick="showTab('templates')">➡️ Próximo: Selecionar Template</button>
+            </div>
+        </div>
+
+        <!-- ABA 4: Templates -->
         <div class="tab-content" id="templates">
             <h2>📋 Selecionar Template de Avaliação</h2>
             
@@ -800,6 +816,9 @@
                     <div id="status-candidatos" style="padding: 8px; border-radius: 5px; background: #f8d7da; color: #721c24;">
                         ❌ Candidatos não carregados
                     </div>
+                    <div id="status-selecao" style="padding: 8px; border-radius: 5px; background: #f8d7da; color: #721c24;">
+                        ❌ Seleção não definida
+                    </div>
                     <div id="status-template" style="padding: 8px; border-radius: 5px; background: #f8d7da; color: #721c24;">
                         ❌ Template não selecionado
                     </div>
@@ -815,7 +834,7 @@
             </div>
         </div>
 
-        <!-- ABA 4: Análise -->
+        <!-- ABA 5: Análise -->
         <div class="tab-content" id="analise">
             <h2>🔍 Análise em Andamento</h2>
             
@@ -838,7 +857,7 @@
             </div>
         </div>
 
-        <!-- ABA 5: Dashboard -->
+        <!-- ABA 6: Dashboard -->
         <div class="tab-content" id="dashboard">
             <h2>📊 Dashboard de Resultados</h2>
             
@@ -986,6 +1005,8 @@
         let appState = {
             pdfData: null,
             candidatos: [],
+            candidatosSelecionados: new Set(), // IDs dos candidatos selecionados
+            motivosExclusao: {}, // ID -> motivo da exclusão
             vagaConfig: {},
             templateSelecionado: null,
             resultadosAnalise: {},
@@ -1134,27 +1155,194 @@
             }
         };
 
-        // Inicialização
+        // === INICIALIZAÇÃO ===
         document.addEventListener('DOMContentLoaded', function() {
-            carregarTemplatesPersonalizados(); // Carregar templates salvos primeiro
-            carregarTemplates();
-            configurarEventos();
-            atualizarStatusEtapas(); // Atualizar status inicial
+            console.log('🚀 Sistema CV Analyzer inicializando...');
+            
+            try {
+                carregarTemplatesPersonalizados(); // Carregar templates salvos primeiro
+                console.log('✅ Templates personalizados carregados');
+                
+                carregarTemplates();
+                console.log('✅ Templates padrão carregados');
+                
+                configurarEventos();
+                console.log('✅ Eventos configurados');
+                
+                atualizarStatusEtapas(); // Atualizar status inicial
+                console.log('✅ Status das etapas atualizado');
+                
+                console.log('🎉 Sistema CV Analyzer inicializado com sucesso!');
+                
+                // Verificação adicional após inicialização
+                setTimeout(verificarInicializacao, 1000);
+                
+            } catch (error) {
+                console.error('❌ Erro na inicialização:', error);
+                alert('Erro na inicialização do sistema. Recarregue a página.');
+            }
         });
+        
+        function verificarInicializacao() {
+            const fileInput = document.getElementById('pdfFile');
+            const uploadArea = document.querySelector('.upload-area');
+            
+            if (!fileInput || !uploadArea) {
+                console.error('❌ Elementos críticos não encontrados após inicialização!');
+                setTimeout(reconfigurarEventos, 500);
+                return;
+            }
+            
+            console.log('✅ Verificação de inicialização concluída - Sistema OK');
+        }
+        
+        function reconfigurarEventos() {
+            console.log('🔧 Reconfigurando eventos...');
+            
+            try {
+                // Reconfigurar upload de arquivo
+                const fileInput = document.getElementById('pdfFile');
+                if (fileInput) {
+                    // Método alternativo de configuração
+                    fileInput.onchange = function(event) {
+                        console.log('📁 Arquivo selecionado (método alternativo)');
+                        handleFileUpload(event);
+                    };
+                    console.log('✅ Event listener do file input reconfigurado');
+                }
+                
+                // Reconfigurar área de upload
+                const uploadArea = document.querySelector('.upload-area');
+                if (uploadArea) {
+                    uploadArea.ondragover = function(event) {
+                        event.preventDefault();
+                        event.currentTarget.classList.add('dragover');
+                    };
+                    
+                    uploadArea.ondragleave = function(event) {
+                        event.currentTarget.classList.remove('dragover');
+                    };
+                    
+                    uploadArea.ondrop = function(event) {
+                        console.log('📁 Arquivo arrastado (método alternativo)');
+                        handleFileDrop(event);
+                    };
+                    
+                    // Garantir que clique também funcione
+                    uploadArea.onclick = function() {
+                        console.log('🖱️ Clique na área de upload detectado');
+                        fileInput.click();
+                    };
+                    
+                    console.log('✅ Event listeners da upload area reconfigurados');
+                }
+                
+                console.log('✅ Reconfiguração concluída');
+                
+            } catch (error) {
+                console.error('❌ Erro na reconfiguração:', error);
+            }
+        }
+        
+        function testarUpload() {
+            console.log('🔧 === TESTE DO SISTEMA DE UPLOAD ===');
+            
+            const resultados = {
+                pdfJsCarregado: typeof pdfjsLib !== 'undefined',
+                fileInputExiste: !!document.getElementById('pdfFile'),
+                uploadAreaExiste: !!document.querySelector('.upload-area'),
+                eventListenersAtivos: false,
+                estadoAplicacao: Object.keys(appState).length > 0
+            };
+            
+            // Testar event listeners
+            const fileInput = document.getElementById('pdfFile');
+            const uploadArea = document.querySelector('.upload-area');
+            
+            if (fileInput) {
+                // Verificar se há event listeners
+                const hasListener = fileInput.onchange !== null;
+                resultados.eventListenersAtivos = hasListener;
+            }
+            
+            console.log('📊 Resultados do teste:', resultados);
+            
+            // Criar relatório visual
+            let relatorio = '🔧 TESTE DO SISTEMA DE UPLOAD\n\n';
+            relatorio += `📚 PDF.js carregado: ${resultados.pdfJsCarregado ? '✅ SIM' : '❌ NÃO'}\n`;
+            relatorio += `📄 Input de arquivo existe: ${resultados.fileInputExiste ? '✅ SIM' : '❌ NÃO'}\n`;
+            relatorio += `📂 Área de upload existe: ${resultados.uploadAreaExiste ? '✅ SIM' : '❌ NÃO'}\n`;
+            relatorio += `🔗 Event listeners ativos: ${resultados.eventListenersAtivos ? '✅ SIM' : '❌ NÃO'}\n`;
+            relatorio += `🏗️ Estado da aplicação OK: ${resultados.estadoAplicacao ? '✅ SIM' : '❌ NÃO'}\n\n`;
+            
+            // Verificar problemas e sugestões
+            const problemas = [];
+            if (!resultados.pdfJsCarregado) problemas.push('PDF.js não carregou');
+            if (!resultados.fileInputExiste) problemas.push('Input de arquivo não encontrado');
+            if (!resultados.uploadAreaExiste) problemas.push('Área de upload não encontrada');
+            if (!resultados.eventListenersAtivos) problemas.push('Event listeners podem não estar ativos');
+            
+            if (problemas.length > 0) {
+                relatorio += '⚠️ PROBLEMAS ENCONTRADOS:\n';
+                problemas.forEach(problema => relatorio += `• ${problema}\n`);
+                relatorio += '\n🔧 TENTANDO CORRIGIR...\n';
+                
+                // Tentar corrigir
+                reconfigurarEventos();
+                relatorio += '✅ Reconfiguração executada!\n';
+            } else {
+                relatorio += '✅ SISTEMA OK - Tente fazer upload de um PDF\n';
+            }
+            
+            relatorio += '\n💡 Se ainda não funcionar:\n';
+            relatorio += '• Recarregue a página (F5)\n';
+            relatorio += '• Verifique se o arquivo é realmente um PDF\n';
+            relatorio += '• Abra o Console (F12) para ver detalhes\n';
+            
+            alert(relatorio);
+            
+            // Log detalhado no console
+            console.log('🔍 Teste detalhado concluído. Verifique o relatório acima.');
+            console.log('📋 AppState atual:', appState);
+            console.log('🔧 === FIM DO TESTE ===');
+        }
 
+        // === FUNÇÕES DE CONFIGURAÇÃO E EVENTOS ===
         function configurarEventos() {
+            console.log('🔧 Configurando eventos...');
+            
             // Upload de arquivo
             const fileInput = document.getElementById('pdfFile');
-            fileInput.addEventListener('change', handleFileUpload);
+            if (fileInput) {
+                // Remover event listeners existentes primeiro
+                fileInput.removeEventListener('change', handleFileUpload);
+                fileInput.addEventListener('change', handleFileUpload);
+                console.log('✅ Event listener do file input configurado');
+            } else {
+                console.error('❌ Elemento pdfFile não encontrado!');
+            }
             
             // Drag and drop
             const uploadArea = document.querySelector('.upload-area');
-            uploadArea.addEventListener('dragover', handleDragOver);
-            uploadArea.addEventListener('dragleave', handleDragLeave);
-            uploadArea.addEventListener('drop', handleFileDrop);
+            if (uploadArea) {
+                // Remover event listeners existentes primeiro
+                uploadArea.removeEventListener('dragover', handleDragOver);
+                uploadArea.removeEventListener('dragleave', handleDragLeave);
+                uploadArea.removeEventListener('drop', handleFileDrop);
+                
+                // Adicionar event listeners
+                uploadArea.addEventListener('dragover', handleDragOver);
+                uploadArea.addEventListener('dragleave', handleDragLeave);
+                uploadArea.addEventListener('drop', handleFileDrop);
+                console.log('✅ Event listeners de drag&drop configurados');
+            } else {
+                console.error('❌ Elemento upload-area não encontrado!');
+            }
         }
 
         function showTab(tabName) {
+            console.log(`🔄 Mudando para aba: ${tabName}`);
+            
             // Ocultar todas as abas
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -1165,20 +1353,67 @@
             });
             
             // Mostrar aba selecionada
-            document.getElementById(tabName).classList.add('active');
-            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            const targetTab = document.getElementById(tabName);
+            const targetButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
             
-            // Atualizar status das etapas se estivermos na aba de templates
-            if (tabName === 'templates') {
-                setTimeout(atualizarStatusEtapas, 100);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            } else {
+                console.error(`❌ Aba ${tabName} não encontrada!`);
+                return;
+            }
+            
+            if (targetButton) {
+                targetButton.classList.add('active');
+            } else {
+                console.error(`❌ Botão da aba ${tabName} não encontrado!`);
+            }
+            
+            // Inicialização específica por aba
+            try {
+                if (tabName === 'upload') {
+                    // Garantir que upload funcione quando voltar para esta aba
+                    setTimeout(() => {
+                        const fileInput = document.getElementById('pdfFile');
+                        const uploadArea = document.querySelector('.upload-area');
+                        
+                        if (!fileInput || !uploadArea) {
+                            console.log('⚠️ Elementos de upload não encontrados, reconfigurando...');
+                            reconfigurarEventos();
+                        }
+                    }, 100);
+                    
+                } else if (tabName === 'selecao') {
+                    setTimeout(inicializarAbaSeleção, 100);
+                    
+                } else if (tabName === 'templates') {
+                    setTimeout(atualizarStatusEtapas, 100);
+                }
+                
+                console.log(`✅ Aba ${tabName} carregada com sucesso`);
+                
+            } catch (error) {
+                console.error(`❌ Erro ao inicializar aba ${tabName}:`, error);
             }
         }
 
+        // === FUNÇÕES DE UPLOAD E PROCESSAMENTO ===
         function handleFileUpload(event) {
+            console.log('📁 Arquivo selecionado via input');
             const file = event.target.files[0];
-            if (file && file.type === 'application/pdf') {
+            
+            if (!file) {
+                console.log('❌ Nenhum arquivo selecionado');
+                return;
+            }
+            
+            console.log('📄 Arquivo:', file.name, 'Tipo:', file.type, 'Tamanho:', file.size);
+            
+            if (file.type === 'application/pdf') {
+                console.log('✅ Arquivo PDF válido, iniciando processamento...');
                 processarPDF(file);
             } else {
+                console.log('❌ Tipo de arquivo inválido:', file.type);
                 alert('Por favor, selecione um arquivo PDF válido.');
             }
         }
@@ -1193,57 +1428,135 @@
         }
 
         function handleFileDrop(event) {
+            console.log('📁 Arquivo arrastado para upload area');
             event.preventDefault();
             event.currentTarget.classList.remove('dragover');
             
             const files = event.dataTransfer.files;
-            if (files.length > 0 && files[0].type === 'application/pdf') {
-                document.getElementById('pdfFile').files = files;
-                processarPDF(files[0]);
+            console.log('📂 Arquivos arrastados:', files.length);
+            
+            if (files.length > 0) {
+                const file = files[0];
+                console.log('📄 Primeiro arquivo:', file.name, 'Tipo:', file.type);
+                
+                if (file.type === 'application/pdf') {
+                    console.log('✅ Arquivo PDF válido via drag&drop, iniciando processamento...');
+                    document.getElementById('pdfFile').files = files;
+                    processarPDF(file);
+                } else {
+                    console.log('❌ Tipo de arquivo inválido via drag&drop:', file.type);
+                    alert('Por favor, arraste um arquivo PDF válido.');
+                }
             } else {
+                console.log('❌ Nenhum arquivo foi arrastado');
                 alert('Por favor, arraste um arquivo PDF válido.');
             }
         }
 
         async function processarPDF(file) {
-            document.getElementById('loadingPDF').classList.add('show');
-            document.getElementById('fileInfo').classList.remove('hidden');
-            document.getElementById('fileName').textContent = file.name;
+            console.log('🔍 Iniciando processamento do PDF:', file.name);
+            
+            // Verificar se PDF.js está carregado
+            if (typeof pdfjsLib === 'undefined') {
+                console.error('❌ PDF.js não está carregado!');
+                alert('Erro: Biblioteca PDF.js não carregada. Recarregue a página e tente novamente.');
+                return;
+            }
+            
+            // Mostrar loading
+            const loadingElement = document.getElementById('loadingPDF');
+            const fileInfoElement = document.getElementById('fileInfo');
+            const fileNameElement = document.getElementById('fileName');
+            
+            if (loadingElement) loadingElement.classList.add('show');
+            if (fileInfoElement) fileInfoElement.classList.remove('hidden');
+            if (fileNameElement) fileNameElement.textContent = file.name;
             
             try {
+                console.log('📖 Convertendo arquivo para ArrayBuffer...');
                 const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                console.log('✅ ArrayBuffer criado, tamanho:', arrayBuffer.byteLength);
                 
-                console.log(`PDF tem ${pdf.numPages} páginas`);
+                console.log('📚 Carregando PDF com PDF.js...');
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                console.log(`✅ PDF carregado com ${pdf.numPages} páginas`);
                 
                 // Processar TODAS as páginas para extrair candidatos
                 let textoCompleto = '';
                 
                 for (let i = 1; i <= pdf.numPages; i++) {
+                    console.log(`📄 Processando página ${i}/${pdf.numPages}...`);
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
                     const textoPagina = textContent.items.map(item => item.str).join(' ');
                     textoCompleto += textoPagina + ' ';
                     
-                    console.log(`Página ${i} processada, texto length: ${textoPagina.length}`);
+                    // Atualizar status
+                    const statusElement = document.querySelector('#loadingPDF p');
+                    if (statusElement) {
+                        statusElement.textContent = `Processando página ${i}/${pdf.numPages}... Extraindo texto...`;
+                    }
                 }
                 
-                console.log(`Texto total extraído: ${textoCompleto.length} caracteres`);
+                console.log(`✅ Texto total extraído: ${textoCompleto.length} caracteres`);
+                
+                if (textoCompleto.length < 100) {
+                    throw new Error('PDF parece estar vazio ou com pouco conteúdo');
+                }
+                
+                // Atualizar status
+                const statusElement = document.querySelector('#loadingPDF p');
+                if (statusElement) {
+                    statusElement.textContent = 'Identificando candidatos...';
+                }
                 
                 // Extrair candidatos do texto completo
                 const candidatos = extrairCandidatos(textoCompleto);
                 
+                if (candidatos.length === 0) {
+                    throw new Error('Nenhum candidato foi encontrado no PDF');
+                }
+                
+                // Salvar dados
                 appState.pdfData = arrayBuffer;
                 appState.candidatos = candidatos;
                 
+                console.log(`✅ PDF processado com sucesso: ${candidatos.length} candidatos encontrados`);
+                
                 // Mostrar resultados
-                document.getElementById('loadingPDF').classList.remove('show');
+                if (loadingElement) loadingElement.classList.remove('show');
                 exibirCandidatos(candidatos);
                 
             } catch (error) {
-                console.error('Erro ao processar PDF:', error);
-                document.getElementById('loadingPDF').classList.remove('show');
-                alert('Erro ao processar o PDF. Verifique se o arquivo não está corrompido.');
+                console.error('❌ Erro ao processar PDF:', error);
+                
+                // Ocultar loading
+                if (loadingElement) loadingElement.classList.remove('show');
+                
+                // Mostrar erro mais detalhado
+                let mensagemErro = 'Erro ao processar o PDF:\n\n';
+                
+                if (error.message.includes('vazio')) {
+                    mensagemErro += '• O PDF parece estar vazio ou não contém texto extraível\n';
+                    mensagemErro += '• Verifique se é um PDF com texto (não apenas imagens)\n';
+                } else if (error.message.includes('Nenhum candidato')) {
+                    mensagemErro += '• Não foi possível encontrar candidatos no formato esperado\n';
+                    mensagemErro += '• Verifique se o PDF contém lista numerada com padrão: "1. Nome Candidato Cand-12345"\n';
+                } else if (error.name === 'InvalidPDFException') {
+                    mensagemErro += '• O arquivo não é um PDF válido ou está corrompido\n';
+                } else if (error.name === 'MissingPDFException') {
+                    mensagemErro += '• Arquivo PDF não encontrado ou não pode ser lido\n';
+                } else {
+                    mensagemErro += `• ${error.message}\n`;
+                    mensagemErro += '• Verifique se o arquivo não está corrompido\n';
+                }
+                
+                mensagemErro += '\n💡 Sugestões:\n';
+                mensagemErro += '• Tente novamente com outro arquivo PDF\n';
+                mensagemErro += '• Verifique o formato do PDF (deve conter texto, não só imagens)\n';
+                mensagemErro += '• Use o botão "Testar Sistema" para verificar problemas\n';
+                
+                alert(mensagemErro);
             }
         }
 
@@ -1334,7 +1647,7 @@
                 return "";
             }
             
-            console.log(`✅ Nome corrigido: "${nome}" → "${nomeClean}"`);
+            console.log('✅ Nome corrigido: "${nome}" → "${nomeClean}"');
             return nomeClean;
         }
 
@@ -1469,8 +1782,229 @@
                 </div>
             `;
             
+            // Inicializar seleção de todos os candidatos
+            appState.candidatosSelecionados.clear();
+            candidatos.forEach(candidato => {
+                appState.candidatosSelecionados.add(candidato.id);
+            });
+            
             // Atualizar status das etapas
             atualizarStatusEtapas();
+            
+            console.log('✅ Candidatos exibidos e selecionados por padrão');
+        }
+
+        // === FUNÇÕES DE SELEÇÃO DE CANDIDATOS ===
+        function inicializarAbaSeleção() {
+            if (appState.candidatos.length === 0) {
+                document.getElementById('listaCandidatos').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        📋 Nenhum candidato carregado. Por favor, faça o upload do PDF primeiro.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Se primeira vez na aba, inicializar todos selecionados
+            if (appState.candidatosSelecionados.size === 0) {
+                appState.candidatos.forEach(candidato => {
+                    appState.candidatosSelecionados.add(candidato.id);
+                });
+            }
+            
+            atualizarListaCandidatos();
+            console.log('👥 Aba de seleção inicializada');
+        }
+
+        function atualizarListaCandidatos() {
+            const lista = document.getElementById('listaCandidatos');
+            if (!lista) return;
+            
+            const candidatos = appState.candidatos || [];
+            const filtroDistancia = document.getElementById('filtroDistancia')?.value || 'todos';
+            const buscaTexto = document.getElementById('buscaCandidato')?.value.toLowerCase() || '';
+            
+            // Aplicar filtros
+            let candidatosFiltrados = candidatos.filter(candidato => {
+                // Filtro de busca
+                const nomeMatch = candidato.nome.toLowerCase().includes(buscaTexto);
+                const idMatch = candidato.id.toLowerCase().includes(buscaTexto);
+                if (!nomeMatch && !idMatch) return false;
+                
+                // Filtro de distância (simulado por enquanto)
+                if (filtroDistancia !== 'todos') {
+                    const distanciaMax = parseInt(filtroDistancia);
+                    const distanciaCandidato = candidato.distancia || Math.random() * 50; // Simulado
+                    if (distanciaCandidato > distanciaMax) return false;
+                }
+                
+                return true;
+            });
+            
+            if (candidatosFiltrados.length === 0) {
+                lista.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        🔍 Nenhum candidato encontrado com os filtros aplicados
+                    </div>
+                `;
+                return;
+            }
+            
+            lista.innerHTML = candidatosFiltrados.map(candidato => {
+                const selecionado = appState.candidatosSelecionados.has(candidato.id);
+                const motivo = appState.motivosExclusao[candidato.id] || '';
+                const distancia = candidato.distancia || (Math.random() * 40 + 2).toFixed(1); // Simulado
+                
+                return `
+                    <div style="
+                        display: flex;
+                        align-items: flex-start;
+                        padding: 15px;
+                        margin-bottom: 10px;
+                        background: ${selecionado ? '#f8fff8' : '#fff5f5'};
+                        border: 2px solid ${selecionado ? '#2ecc71' : '#e74c3c'};
+                        border-radius: 8px;
+                        transition: all 0.3s ease;
+                    ">
+                        <div style="margin-right: 15px; margin-top: 5px;">
+                            <input type="checkbox" 
+                                   id="check-${candidato.id}"
+                                   ${selecionado ? 'checked' : ''}
+                                   onchange="toggleCandidato('${candidato.id}')"
+                                   style="transform: scale(1.3);">
+                        </div>
+                        
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: ${selecionado ? '#2c3e50' : '#7f8c8d'}; margin-bottom: 5px;">
+                                ${candidato.numero}. ${candidato.nome}
+                            </div>
+                            <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 5px;">
+                                📍 ${candidato.endereco || 'Endereço simulado'} • ${candidato.id} • ${distancia}km
+                            </div>
+                            
+                            ${!selecionado ? `
+                                <div style="margin-top: 10px;">
+                                    <input type="text" 
+                                           placeholder="Motivo da exclusão (opcional)"
+                                           value="${motivo}"
+                                           onchange="atualizarMotivo('${candidato.id}', this.value)"
+                                           style="
+                                               width: 100%;
+                                               padding: 6px;
+                                               border: 1px solid #ddd;
+                                               border-radius: 4px;
+                                               font-size: 0.85em;
+                                               background: #fffbf0;
+                                           ">
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="margin-left: 15px; text-align: center;">
+                            <div style="
+                                font-size: 1.5em;
+                                margin-bottom: 5px;
+                            ">${selecionado ? '✅' : '❌'}</div>
+                            <div style="
+                                font-size: 0.75em;
+                                color: ${selecionado ? '#2ecc71' : '#e74c3c'};
+                                font-weight: bold;
+                            ">${selecionado ? 'INCLUÍDO' : 'EXCLUÍDO'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            atualizarContadores();
+        }
+        
+        function toggleCandidato(candidatoId) {
+            if (appState.candidatosSelecionados.has(candidatoId)) {
+                appState.candidatosSelecionados.delete(candidatoId);
+            } else {
+                appState.candidatosSelecionados.add(candidatoId);
+                // Limpar motivo se foi re-incluído
+                delete appState.motivosExclusao[candidatoId];
+            }
+            
+            atualizarListaCandidatos();
+            console.log(`Candidato ${candidatoId} ${appState.candidatosSelecionados.has(candidatoId) ? 'incluído' : 'excluído'}`);
+        }
+        
+        function atualizarMotivo(candidatoId, motivo) {
+            if (motivo.trim()) {
+                appState.motivosExclusao[candidatoId] = motivo.trim();
+            } else {
+                delete appState.motivosExclusao[candidatoId];
+            }
+            console.log(`Motivo atualizado para ${candidatoId}:`, motivo);
+        }
+        
+        function selecionarTodos() {
+            appState.candidatosSelecionados.clear();
+            appState.candidatos.forEach(candidato => {
+                appState.candidatosSelecionados.add(candidato.id);
+            });
+            
+            // Limpar motivos de exclusão
+            appState.motivosExclusao = {};
+            
+            atualizarListaCandidatos();
+            console.log('✅ Todos os candidatos selecionados');
+        }
+        
+        function desmarcarTodos() {
+            appState.candidatosSelecionados.clear();
+            atualizarListaCandidatos();
+            console.log('❌ Todos os candidatos desmarcados');
+        }
+        
+        function inverterSelecao() {
+            const novaSelecao = new Set();
+            appState.candidatos.forEach(candidato => {
+                if (!appState.candidatosSelecionados.has(candidato.id)) {
+                    novaSelecao.add(candidato.id);
+                }
+            });
+            
+            appState.candidatosSelecionados = novaSelecao;
+            atualizarListaCandidatos();
+            console.log('🔄 Seleção invertida');
+        }
+        
+        function aplicarFiltros() {
+            atualizarListaCandidatos();
+        }
+        
+        function atualizarContadores() {
+            const total = appState.candidatos.length;
+            const selecionados = appState.candidatosSelecionados.size;
+            const excluidos = total - selecionados;
+            
+            const elementoTotal = document.getElementById('totalCandidatos');
+            const elementoSelecionados = document.getElementById('candidatosSelecionados');
+            const elementoExcluidos = document.getElementById('candidatosExcluidos');
+            
+            if (elementoTotal) elementoTotal.textContent = total;
+            if (elementoSelecionados) elementoSelecionados.textContent = selecionados;
+            if (elementoExcluidos) elementoExcluidos.textContent = excluidos;
+        }
+
+        // === FUNÇÕES DE TEMPLATES ===
+        function carregarTemplatesPersonalizados() {
+            try {
+                const templatesPersonalizados = JSON.parse(localStorage.getItem('templatesPersonalizados') || '{}');
+                
+                // Adicionar templates personalizados ao objeto global
+                Object.entries(templatesPersonalizados).forEach(([chave, template]) => {
+                    templates[chave] = template;
+                });
+                
+                console.log(`📋 ${Object.keys(templatesPersonalizados).length} templates personalizados carregados`);
+                
+            } catch (error) {
+                console.error('Erro ao carregar templates personalizados:', error);
+            }
         }
 
         function carregarTemplates() {
@@ -1657,55 +2191,9 @@
             templates[appState.templateSelecionado].criterios[criterio].obrigatorio = valor;
         }
 
-        function validarEndereco() {
-            console.log('📍 Validando endereço...');
-            
-            const endereco = document.getElementById('enderecoVaga').value;
-            if (!endereco) {
-                alert('Por favor, insira um endereço.');
-                return;
-            }
-            
-            console.log('Endereço informado:', endereco);
-            
-            try {
-                // Simular validação de endereço (em produção, usar API de geocoding)
-                const cidade = normalizadorCidades.normalizar(endereco);
-                let coordenadas = normalizadorCidades.coordenadas[cidade];
-                
-                console.log('Cidade normalizada:', cidade);
-                
-                // Se for Jundiaí, ajustar para região industrial (como KSB)
-                if (cidade === 'jundiai') {
-                    coordenadas = { lat: -23.1950, lng: -46.8950 }; // Região industrial de Jundiaí
-                    console.log('Ajustado para região industrial de Jundiaí');
-                }
-                
-                // Fallback para centro de Jundiaí se não reconhecer a cidade
-                if (!coordenadas) {
-                    coordenadas = { lat: -23.1864, lng: -46.8842 };
-                    console.log('Usando coordenadas padrão de Jundiaí');
-                }
-                
-                appState.coordenadasVaga = coordenadas;
-                appState.vagaConfig.endereco = endereco;
-                appState.vagaConfig.cidade_normalizada = cidade;
-                
-                console.log('✅ Coordenadas da vaga definidas:', coordenadas);
-                
-                document.getElementById('enderecoValidado').classList.remove('hidden');
-                document.getElementById('enderecoNormalizado').textContent = 
-                    `${endereco} • Coordenadas: ${coordenadas.lat}, ${coordenadas.lng}`;
-                    
-                // Feedback adicional
-                console.log('✅ Endereço validado com sucesso!');
-                
-                // Atualizar status das etapas
-                atualizarStatusEtapas();
-                
-            } catch (error) {
-                console.error('❌ Erro ao validar endereço:', error);
-                alert('Erro ao validar endereço. Tente novamente.');
+        function resetTemplate() {
+            if (appState.templateSelecionado) {
+                carregarEditor(templates[appState.templateSelecionado]);
             }
         }
 
@@ -1777,23 +2265,7 @@
                 alert('❌ Erro ao salvar template. Tente novamente.');
             }
         }
-        
-        function carregarTemplatesPersonalizados() {
-            try {
-                const templatesPersonalizados = JSON.parse(localStorage.getItem('templatesPersonalizados') || '{}');
-                
-                // Adicionar templates personalizados ao objeto global
-                Object.entries(templatesPersonalizados).forEach(([chave, template]) => {
-                    templates[chave] = template;
-                });
-                
-                console.log(`📋 ${Object.keys(templatesPersonalizados).length} templates personalizados carregados`);
-                
-            } catch (error) {
-                console.error('Erro ao carregar templates personalizados:', error);
-            }
-        }
-        
+
         function excluirTemplate(templateKey) {
             if (!templateKey.startsWith('custom_')) {
                 alert('❌ Não é possível excluir templates padrão do sistema.');
@@ -1822,14 +2294,62 @@
             }
         }
 
-        function resetTemplate() {
-            if (appState.templateSelecionado) {
-                carregarEditor(templates[appState.templateSelecionado]);
+        // === FUNÇÕES DE CONFIGURAÇÃO DA VAGA ===
+        function validarEndereco() {
+            console.log('📍 Validando endereço...');
+            
+            const endereco = document.getElementById('enderecoVaga').value;
+            if (!endereco) {
+                alert('Por favor, insira um endereço.');
+                return;
+            }
+            
+            console.log('Endereço informado:', endereco);
+            
+            try {
+                // Simular validação de endereço (em produção, usar API de geocoding)
+                const cidade = normalizadorCidades.normalizar(endereco);
+                let coordenadas = normalizadorCidades.coordenadas[cidade];
+                
+                console.log('Cidade normalizada:', cidade);
+                
+                // Se for Jundiaí, ajustar para região industrial (como KSB)
+                if (cidade === 'jundiai') {
+                    coordenadas = { lat: -23.1950, lng: -46.8950 }; // Região industrial de Jundiaí
+                    console.log('Ajustado para região industrial de Jundiaí');
+                }
+                
+                // Fallback para centro de Jundiaí se não reconhecer a cidade
+                if (!coordenadas) {
+                    coordenadas = { lat: -23.1864, lng: -46.8842 };
+                    console.log('Usando coordenadas padrão de Jundiaí');
+                }
+                
+                appState.coordenadasVaga = coordenadas;
+                appState.vagaConfig.endereco = endereco;
+                appState.vagaConfig.cidade_normalizada = cidade;
+                
+                console.log('✅ Coordenadas da vaga definidas:', coordenadas);
+                
+                document.getElementById('enderecoValidado').classList.remove('hidden');
+                document.getElementById('enderecoNormalizado').textContent = 
+                    `${endereco} • Coordenadas: ${coordenadas.lat}, ${coordenadas.lng}`;
+                    
+                // Feedback adicional
+                console.log('✅ Endereço validado com sucesso!');
+                
+                // Atualizar status das etapas
+                atualizarStatusEtapas();
+                
+            } catch (error) {
+                console.error('❌ Erro ao validar endereço:', error);
+                alert('Erro ao validar endereço. Tente novamente.');
             }
         }
 
         function atualizarStatusEtapas() {
             const statusCandidatos = document.getElementById('status-candidatos');
+            const statusSelecao = document.getElementById('status-selecao');
             const statusTemplate = document.getElementById('status-template');
             const statusEndereco = document.getElementById('status-endereco');
             
@@ -1842,6 +2362,17 @@
             } else {
                 statusCandidatos.style.cssText = 'padding: 8px; border-radius: 5px; background: #f8d7da; color: #721c24;';
                 statusCandidatos.textContent = '❌ Candidatos não carregados';
+            }
+            
+            // Status da seleção
+            if (statusSelecao) {
+                if (appState.candidatosSelecionados && appState.candidatosSelecionados.size > 0) {
+                    statusSelecao.style.cssText = 'padding: 8px; border-radius: 5px; background: #d4edda; color: #155724;';
+                    statusSelecao.textContent = `✅ ${appState.candidatosSelecionados.size} candidatos selecionados para análise`;
+                } else {
+                    statusSelecao.style.cssText = 'padding: 8px; border-radius: 5px; background: #f8d7da; color: #721c24;';
+                    statusSelecao.textContent = '❌ Nenhum candidato selecionado';
+                }
             }
             
             // Status do template
@@ -1865,7 +2396,10 @@
             // Atualizar botão de análise
             const botaoAnalise = document.querySelector('button[onclick="iniciarAnalise()"]');
             if (botaoAnalise) {
-                const tudoOk = appState.candidatos?.length > 0 && appState.templateSelecionado && appState.coordenadasVaga;
+                const tudoOk = appState.candidatos?.length > 0 && 
+                              appState.candidatosSelecionados?.size > 0 && 
+                              appState.templateSelecionado && 
+                              appState.coordenadasVaga;
                 
                 if (tudoOk) {
                     botaoAnalise.className = 'btn success';
@@ -1935,6 +2469,11 @@
                 problemas.push('❌ Nenhum candidato foi carregado. Por favor, faça o upload do PDF primeiro.');
             }
             
+            // Verificar se candidatos foram selecionados
+            if (!appState.candidatosSelecionados || appState.candidatosSelecionados.size === 0) {
+                problemas.push('❌ Nenhum candidato foi selecionado para análise. Por favor, selecione pelo menos um candidato.');
+            }
+            
             // Verificar se template foi selecionado
             if (!appState.templateSelecionado) {
                 problemas.push('❌ Template não foi selecionado. Por favor, selecione um template na aba anterior.');
@@ -1965,6 +2504,8 @@
                 // Redirecionar para a aba apropriada baseado no problema
                 if (!appState.candidatos || appState.candidatos.length === 0) {
                     showTab('upload');
+                } else if (!appState.candidatosSelecionados || appState.candidatosSelecionados.size === 0) {
+                    showTab('selecao');
                 } else if (!appState.templateSelecionado || !appState.coordenadasVaga) {
                     showTab('templates');
                 } else {
@@ -2002,16 +2543,24 @@
             }
         }
 
+        // === FUNÇÕES DE ANÁLISE ===
         async function executarAnalise() {
             const progressBar = document.getElementById('progressBar');
             const status = document.getElementById('analiseStatus');
             const template = templates[appState.templateSelecionado];
             
-            const candidatos = appState.candidatos;
-            const total = candidatos.length;
+            // Filtrar apenas candidatos selecionados
+            const todosCandidatos = appState.candidatos;
+            const candidatosSelecionados = todosCandidatos.filter(candidato => 
+                appState.candidatosSelecionados.has(candidato.id)
+            );
+            
+            const total = candidatosSelecionados.length;
+            
+            console.log(`🔍 Iniciando análise de ${total} candidatos selecionados (${todosCandidatos.length - total} excluídos)`);
             
             for (let i = 0; i < total; i++) {
-                const candidato = candidatos[i];
+                const candidato = candidatosSelecionados[i];
                 const progresso = Math.round(((i + 1) / total) * 100);
                 
                 // Atualizar progresso
@@ -2042,12 +2591,17 @@
                 candidato.competencias = simularCompetenciasCandidato(candidato, template);
             }
             
+            // Atualizar array principal apenas com candidatos selecionados e analisados
+            appState.candidatos = candidatosSelecionados;
+            
             // Ordenar por pontuação
             appState.candidatos.sort((a, b) => b.pontuacao - a.pontuacao);
             
             // Finalizar análise
             document.getElementById('loadingAnalise').classList.remove('show');
             document.getElementById('analiseCompleta').classList.remove('hidden');
+            
+            console.log(`✅ Análise concluída! ${candidatosSelecionados.length} candidatos processados`);
             
             // Preparar dados para dashboard
             prepararDashboard();
@@ -2235,6 +2789,7 @@
             gerarDashboard();
         }
 
+        // === FUNÇÕES DO DASHBOARD ===
         function gerarDashboard() {
             console.log('Iniciando geração do dashboard...');
             
@@ -2423,20 +2978,6 @@
             
             // Gerar gráficos
             setTimeout(gerarGraficos, 100);
-        }
-
-        function classificarDistancia(distancia) {
-            if (distancia <= 5) return "distancia-muito-perto";
-            if (distancia <= 15) return "distancia-perto";
-            if (distancia <= 30) return "distancia-medio";
-            return "distancia-longe";
-        }
-
-        function classificarDistanciaTexto(distancia) {
-            if (distancia <= 5) return "Muito Perto";
-            if (distancia <= 15) return "Perto";
-            if (distancia <= 30) return "Distância Média";
-            return "Longe";
         }
 
         function gerarGraficos() {
@@ -2704,6 +3245,7 @@
             });
         }
 
+        // === FUNÇÕES DE EXPORTAÇÃO E NOVA ANÁLISE ===
         function exportarRelatorio() {
             try {
                 const { jsPDF } = window.jspdf;
@@ -2974,10 +3516,14 @@
 
         function novaAnalise() {
             if (confirm('Deseja iniciar uma nova análise? Os dados atuais serão perdidos.')) {
+                console.log('🔄 Iniciando nova análise...');
+                
                 // Resetar completamente o estado
                 appState = {
                     pdfData: null,
                     candidatos: [],
+                    candidatosSelecionados: new Set(),
+                    motivosExclusao: {},
                     vagaConfig: {},
                     templateSelecionado: null,
                     resultadosAnalise: {},
@@ -2985,13 +3531,25 @@
                 };
                 
                 // Limpar formulários
-                document.getElementById('pdfFile').value = '';
-                document.getElementById('cargoVaga').value = '';
-                document.getElementById('empresaVaga').value = '';
-                document.getElementById('enderecoVaga').value = '';
-                document.getElementById('turnoVaga').selectedIndex = 0;
-                document.getElementById('salarioVaga').value = '';
-                document.getElementById('observacoesVaga').value = '';
+                try {
+                    document.getElementById('pdfFile').value = '';
+                    document.getElementById('cargoVaga').value = '';
+                    document.getElementById('empresaVaga').value = '';
+                    document.getElementById('enderecoVaga').value = '';
+                    document.getElementById('turnoVaga').selectedIndex = 0;
+                    document.getElementById('salarioVaga').value = '';
+                    document.getElementById('observacoesVaga').value = '';
+                    
+                    // Limpar filtros da aba de seleção
+                    if (document.getElementById('filtroDistancia')) {
+                        document.getElementById('filtroDistancia').selectedIndex = 0;
+                    }
+                    if (document.getElementById('buscaCandidato')) {
+                        document.getElementById('buscaCandidato').value = '';
+                    }
+                } catch (error) {
+                    console.log('⚠️ Alguns campos não puderam ser limpos:', error);
+                }
                 
                 // Ocultar elementos
                 document.getElementById('fileInfo').classList.add('hidden');
@@ -3021,10 +3579,18 @@
                 document.getElementById('chartsSection').innerHTML = '';
                 document.getElementById('rankingContainer').innerHTML = '';
                 
+                // Limpar lista de candidatos da aba seleção
+                const listaCandidatos = document.getElementById('listaCandidatos');
+                if (listaCandidatos) {
+                    listaCandidatos.innerHTML = '';
+                }
+                
                 // Resetar progress bar
                 const progressBar = document.getElementById('progressBar');
-                progressBar.style.width = '0%';
-                progressBar.textContent = '0%';
+                if (progressBar) {
+                    progressBar.style.width = '0%';
+                    progressBar.textContent = '0%';
+                }
                 
                 // Voltar para primeira aba
                 showTab('upload');
